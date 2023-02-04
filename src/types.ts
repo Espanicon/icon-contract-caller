@@ -17,3 +17,7 @@ export type DashboardPropsType = {
 export type MethodItemPropsType = {
   method: AbiMethod;
 };
+
+export type InputItemPropsType = {
+  input: { name: string; type: string };
+};

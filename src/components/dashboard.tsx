@@ -1,5 +1,9 @@
 import { useState } from "react";
-import type { DashboardPropsType, MethodItemPropsType } from "../types";
+import type {
+  DashboardPropsType,
+  MethodItemPropsType,
+  InputItemPropsType,
+} from "../types";
 
 export default function Dashboard({ abi }: DashboardPropsType) {
   return (
@@ -89,23 +93,57 @@ function List({ abi }: DashboardPropsType) {
 }
 
 function MethodItem({ method }: MethodItemPropsType) {
+  const [isOpen, setIsOpen] = useState(false);
+
+  function toggleOpen() {
+    setIsOpen((state) => {
+      return !state;
+    });
+  }
   return (
-    <div className="flex cursor-pointer rounded border border-indigo-600 p-4">
-      <span className="mr-auto">{method.name}</span>
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        fill="none"
-        viewBox="0 0 24 24"
-        strokeWidth={1.5}
-        stroke="currentColor"
-        className="h-6 w-6"
+    <div className="flex flex-col divide-y divide-solid rounded border border-indigo-600 py-1 px-4">
+      <div className="m-4 flex cursor-pointer" onClick={toggleOpen}>
+        <span className="mr-auto">{method.name}</span>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          strokeWidth={1.5}
+          stroke="currentColor"
+          className="h-6 w-6"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M19.5 8.25l-7.5 7.5-7.5-7.5"
+          />
+        </svg>
+      </div>
+      <div className={isOpen ? "p-2" : "hidden"}>
+        {method.inputs!.map((input) => {
+          return <InputItem input={input} />;
+        })}
+      </div>
+    </div>
+  );
+}
+
+function InputItem({ input }: InputItemPropsType) {
+  return (
+    <div>
+      <label
+        htmlFor="input"
+        className="block text-sm font-medium text-gray-700"
       >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          d="M19.5 8.25l-7.5 7.5-7.5-7.5"
+        {input.name} ({input.type}):
+      </label>
+      <div className="mt-1">
+        <input
+          type="text"
+          name="text"
+          className="block w-full rounded-md border-gray-300 p-1 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
         />
-      </svg>
+      </div>
     </div>
   );
 }
