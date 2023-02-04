@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { DashboardPropsType } from "../types";
+import type { DashboardPropsType, MethodItemPropsType } from "../types";
 
 export default function Dashboard({ abi }: DashboardPropsType) {
   return (
@@ -23,6 +23,7 @@ export default function Dashboard({ abi }: DashboardPropsType) {
           </div>
         </div>
         <Navbar />
+        <List abi={abi} />
       </div>
     </div>
   );
@@ -72,5 +73,39 @@ function Navbar() {
         </a>
       </li>
     </ul>
+  );
+}
+
+function List({ abi }: DashboardPropsType) {
+  return (
+    <ul role="list" className="divide-y divide-gray-200">
+      {abi.map((method, index) => (
+        <li key={`${method.name}-${index}`} className="py-4">
+          <MethodItem method={method} />
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+function MethodItem({ method }: MethodItemPropsType) {
+  return (
+    <div className="flex cursor-pointer rounded border border-indigo-600 p-4">
+      <span className="mr-auto">{method.name}</span>
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 24 24"
+        strokeWidth={1.5}
+        stroke="currentColor"
+        className="h-6 w-6"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          d="M19.5 8.25l-7.5 7.5-7.5-7.5"
+        />
+      </svg>
+    </div>
   );
 }

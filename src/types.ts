@@ -8,6 +8,12 @@ export type AbiMethod = {
   type?: string;
 };
 
+export type ContractAbi = Array<AbiMethod>;
+
 export type DashboardPropsType = {
-  abi: AbiMethod;
+  abi: ContractAbi;
+};
+
+export type MethodItemPropsType = {
+  method: AbiMethod;
 };
