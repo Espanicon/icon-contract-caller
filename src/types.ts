@@ -3,20 +3,16 @@ type IO = Array<{ name: string; type: string }>;
 
 export type AbiMethod = {
   inputs?: IO;
-  name?: string;
+  name: string;
   outputs?: Array<{ type: string }>;
   readonly?: string;
   type?: string;
 };
 
-export type ContractAbi = Array<AbiMethod>;
-
-export type DashboardPropsType = {
-  abi: ContractAbi;
-};
+export type ContractAbiType = Array<AbiMethod>;
 
 export type ListPropsType = {
-  abi: ContractAbi;
+  contractAbi: ContractAbiType;
   navbarState: boolean;
 };
 
@@ -31,4 +27,9 @@ export type InputItemPropsType = {
 export type NavbarPropsType = {
   navbarState: boolean;
   handleNavbarState: Dispatch<boolean>;
+};
+
+export type TextAreaResultPropsType = {
+  label: string;
+  text?: string;
 };

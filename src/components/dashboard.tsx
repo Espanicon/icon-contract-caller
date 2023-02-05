@@ -1,13 +1,17 @@
 import { useState } from "react";
 import type {
-  DashboardPropsType,
+  ContractAbiType,
   MethodItemPropsType,
   InputItemPropsType,
   NavbarPropsType,
   ListPropsType,
+  TextAreaResultPropsType,
 } from "../types";
+import abi from "../utils/testAbi";
 
-export default function Dashboard({ abi }: DashboardPropsType) {
+const defaultContract = "cx0000000000000000000000000000000000000000";
+export default function Dashboard() {
+  const [contractAbi, setContractAbi] = useState<ContractAbiType>(abi);
   const [readIsActive, setReadIsActive] = useState(false);
   return (
     <div className="w-full min-w-min max-w-screen-xl overflow-hidden rounded-lg bg-white shadow">
@@ -89,7 +93,15 @@ export default function Dashboard({ abi }: DashboardPropsType) {
               name="text"
               id="text"
               className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-              placeholder="cx0000000000000000000000000000000000000000"
+              placeholder={defaultContract}
+            />
+          </div>
+        </div>
+        <div className="max-w-screen-md p-2">
+          <div className="mt-1">
+            <TextAreaResult
+              label="Contract ABI:"
+              text={JSON.stringify(contractAbi)}
             />
           </div>
         </div>
@@ -97,7 +109,7 @@ export default function Dashboard({ abi }: DashboardPropsType) {
           navbarState={readIsActive}
           handleNavbarState={setReadIsActive}
         />
-        <List abi={abi} navbarState={readIsActive} />
+        <List contractAbi={contractAbi} navbarState={readIsActive} />
       </div>
     </div>
   );
@@ -148,24 +160,26 @@ function Navbar({ navbarState, handleNavbarState }: NavbarPropsType) {
   );
 }
 
-function List({ abi, navbarState }: ListPropsType) {
+function List({ contractAbi, navbarState }: ListPropsType) {
   return navbarState ? (
     <ul role="list" className="divide-y divide-gray-200">
-      {abi.map((method, index) => {
-        return method.readonly == "0x1" ? (
-          <li key={`${method.name}-${index}`} className="py-4">
-            <MethodItem method={method} />
-          </li>
-        ) : (
-          <></>
-        );
+      {contractAbi.map((method, index) => {
+        if (method != null) {
+          return method.readonly == "0x1" ? (
+            <li key={`${method.name}-${index}`} className="py-2">
+              <MethodItem method={method} />
+            </li>
+          ) : (
+            <></>
+          );
+        }
       })}
     </ul>
   ) : (
     <ul role="list" className="divide-y divide-gray-200">
-      {abi.map((method, index) => {
+      {contractAbi.map((method, index) => {
         return method.readonly != "0x1" ? (
-          <li key={`${method.name}-${index}`} className="py-4">
+          <li key={`${method.name}-${index}`} className="py-2">
             <MethodItem method={method} />
           </li>
         ) : (
@@ -226,11 +240,11 @@ function MethodItem({ method }: MethodItemPropsType) {
             >
               Query
             </button>
-            <TextAreaResult />
+            <TextAreaResult label="Query Result:" />
           </>
         ) : (
           <>
-            <TextAreaResult />
+            <TextAreaResult label="Query Result:" />
           </>
         )}
       </div>
@@ -258,14 +272,14 @@ function InputItem({ input }: InputItemPropsType) {
   );
 }
 
-function TextAreaResult() {
+function TextAreaResult({ label, text = "" }: TextAreaResultPropsType) {
   return (
     <div>
       <label
         htmlFor="comment"
         className="block text-sm font-medium text-gray-700"
       >
-        Query result:
+        {label}
       </label>
       <div className="mt-1">
         <textarea
@@ -275,6 +289,7 @@ function TextAreaResult() {
           id="comment"
           className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
           defaultValue={"RPC JSON Response."}
+          value={text}
         />
       </div>
     </div>
