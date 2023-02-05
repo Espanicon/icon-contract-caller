@@ -1,3 +1,4 @@
+import type { Dispatch } from "react";
 type IO = Array<{ name: string; type: string }>;
 
 export type AbiMethod = {
@@ -14,10 +15,20 @@ export type DashboardPropsType = {
   abi: ContractAbi;
 };
 
+export type ListPropsType = {
+  abi: ContractAbi;
+  navbarState: boolean;
+};
+
 export type MethodItemPropsType = {
   method: AbiMethod;
 };
 
 export type InputItemPropsType = {
   input: { name: string; type: string };
+};
+
+export type NavbarPropsType = {
+  navbarState: boolean;
+  handleNavbarState: Dispatch<boolean>;
 };
