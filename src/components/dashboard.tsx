@@ -6,11 +6,17 @@ import type {
   NavbarPropsType,
   ListPropsType,
   TextAreaResultPropsType,
+  NetworksType,
 } from "../types";
+
 import abi from "../utils/testAbi";
+import utils from "../utils/utils";
 
 const defaultContract = "cx0000000000000000000000000000000000000000";
 export default function Dashboard() {
+  const [networkState, setNetworkState] = useState<NetworksType>(
+    utils.networkKeys[0]!
+  );
   const [contractAbi, setContractAbi] = useState<ContractAbiType>(abi);
   const [readIsActive, setReadIsActive] = useState(false);
   return (
@@ -27,11 +33,11 @@ export default function Dashboard() {
             <select
               name="network"
               className="my-1 mr-1 block rounded-md border-gray-300 py-2 pl-3 pr-10 text-base focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
-              defaultValue="Mainnet"
+              defaultValue={networkState}
             >
-              <option>Mainnet</option>
-              <option>Lisbon</option>
-              <option>Custom</option>
+              {utils.networkKeys.map((each, index) => {
+                return <option key={`${each}-${index}`}>{each}</option>;
+              })}
             </select>
             <input
               readOnly={true}
@@ -109,7 +115,7 @@ export default function Dashboard() {
           navbarState={readIsActive}
           handleNavbarState={setReadIsActive}
         />
-        <List contractAbi={contractAbi} navbarState={readIsActive} />
+        <ListOfMethods contractAbi={contractAbi} navbarState={readIsActive} />
       </div>
     </div>
   );
@@ -160,18 +166,16 @@ function Navbar({ navbarState, handleNavbarState }: NavbarPropsType) {
   );
 }
 
-function List({ contractAbi, navbarState }: ListPropsType) {
+function ListOfMethods({ contractAbi, navbarState }: ListPropsType) {
   return navbarState ? (
     <ul role="list" className="divide-y divide-gray-200">
       {contractAbi.map((method, index) => {
         if (method != null) {
           return method.readonly == "0x1" ? (
-            <li key={`${method.name}-${index}`} className="py-2">
+            <li key={`${method.name ?? "key"}-${index}`} className="py-2">
               <MethodItem method={method} />
             </li>
-          ) : (
-            <></>
-          );
+          ) : null;
         }
       })}
     </ul>
@@ -179,12 +183,10 @@ function List({ contractAbi, navbarState }: ListPropsType) {
     <ul role="list" className="divide-y divide-gray-200">
       {contractAbi.map((method, index) => {
         return method.readonly != "0x1" ? (
-          <li key={`${method.name}-${index}`} className="py-2">
+          <li key={`${method.name ?? "key"}-${index}`} className="py-2">
             <MethodItem method={method} />
           </li>
-        ) : (
-          <></>
-        );
+        ) : null;
       })}
     </ul>
   );
@@ -288,7 +290,7 @@ function TextAreaResult({ label, text = "" }: TextAreaResultPropsType) {
           name="comment"
           id="comment"
           className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-          defaultValue={"RPC JSON Response."}
+          // defaultValue={"RPC JSON Response."}
           value={text}
         />
       </div>

@@ -1,4 +1,8 @@
 import type { Dispatch } from "react";
+import type utils from "./utils/utils";
+
+export type NetworksType = (typeof utils.networkKeys)[number];
+
 type IO = Array<{ name: string; type: string }>;
 
 export type AbiMethod = {
