@@ -1,4 +1,5 @@
 import { useState } from "react";
+import type { ChangeEvent } from "react";
 import type {
   ContractAbiType,
   MethodItemPropsType,
@@ -14,11 +15,21 @@ import utils from "../utils/utils";
 
 const defaultContract = "cx0000000000000000000000000000000000000000";
 export default function Dashboard() {
-  const [networkState, setNetworkState] = useState<NetworksType>(
+  const [networkState, setNetworkState] = useState<NetworksType | string>(
     utils.networkKeys[0]!
   );
+  const [customNetworkState, setCustomNetworkState] = useState<string>("");
   const [contractAbi, setContractAbi] = useState<ContractAbiType>(abi);
   const [readIsActive, setReadIsActive] = useState(false);
+
+  function handleNetworkChange(evnt: ChangeEvent<HTMLSelectElement>) {
+    setNetworkState(evnt.target.value);
+  }
+
+  function handleCustomNetworkChange(evnt: ChangeEvent<HTMLInputElement>) {
+    setCustomNetworkState(evnt.target.value);
+  }
+
   return (
     <div className="w-full min-w-min max-w-screen-xl overflow-hidden rounded-lg bg-white shadow">
       <div className="px-4 py-5 sm:p-6">
@@ -33,20 +44,36 @@ export default function Dashboard() {
             <select
               name="network"
               className="my-1 mr-1 block rounded-md border-gray-300 py-2 pl-3 pr-10 text-base focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
-              defaultValue={networkState}
+              value={networkState}
+              onChange={handleNetworkChange}
             >
               {utils.networkKeys.map((each, index) => {
                 return <option key={`${each}-${index}`}>{each}</option>;
               })}
             </select>
-            <input
-              readOnly={true}
-              type="text"
-              name="text"
-              id="text"
-              className="my-1 block rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-              placeholder="Mainnet"
-            />
+            {networkState === "custom" ? (
+              <input
+                // readOnly={true}
+                type="text"
+                name="text"
+                id="text"
+                className="my-1 block rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                value={customNetworkState}
+                onChange={handleCustomNetworkChange}
+              />
+            ) : (
+              <input
+                readOnly={true}
+                type="text"
+                name="text"
+                id="text"
+                className="my-1 block rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                value={
+                  utils.networks[networkState as unknown as NetworksType]
+                    .hostname
+                }
+              />
+            )}
           </div>
         </div>
         <div className="max-w-screen-md p-2">
