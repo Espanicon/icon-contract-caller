@@ -74,7 +74,7 @@ async function fetchAbi(
   contractAddress: string,
   nodeUrl: string,
   nid: number
-): Promise<ContractAbiType | null> {
+): Promise<ContractAbiType> {
   const abi: ContractAbiType = [];
   try {
     // eslint-disable-next-line
@@ -84,8 +84,6 @@ async function fetchAbi(
     ) as unknown as EspaniconSdkType;
     const response = await sdk.getScoreApi(contractAddress);
     if (Array.isArray(response)) {
-      console.log("response");
-      console.log(response);
       return response;
     } else {
       const errorResponse = response as unknown as ErrorResponse;

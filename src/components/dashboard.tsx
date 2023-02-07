@@ -5,11 +5,10 @@ import ListOfMethods from "./listOfMethods";
 import TextAreaResult from "./textAreaResult";
 import type { ContractAbiType, NetworksType } from "../types";
 
-import abi from "../utils/testAbi";
 import utils from "../utils/utils";
 
 export default function Dashboard() {
-  const [networkState, setNetworkState] = useState<NetworksType | string>(
+  const [networkState, setNetworkState] = useState<string>(
     utils.networkKeys[0]!
   );
   const [customNetworkState, setCustomNetworkState] = useState<string>("");
@@ -35,22 +34,37 @@ export default function Dashboard() {
   }
 
   useEffect(() => {
-    async function fetchAbi() {
-      const abi = await utils.fetchAbi(
-        contractAddress,
-        utils.networks[networkState as unknown as NetworksType].hostname,
-        utils.networks[networkState as unknown as NetworksType].nid
-      );
+    async function fetchAbi(network: string, nid: number) {
+      const abi = await utils.fetchAbi(contractAddress, network, nid);
 
       setContractAbi(abi);
     }
 
-    if (contractAddressIsValid) {
-      fetchAbi();
+    if (networkState === "custom") {
+      if (contractAddressIsValid) {
+        const network = customNetworkState;
+        const nid = utils.networks["custom"].nid;
+        fetchAbi(network, nid);
+      } else {
+        setContractAbi([]);
+      }
     } else {
-      setContractAbi([]);
+      if (contractAddressIsValid) {
+        const network =
+          utils.networks[networkState as unknown as NetworksType].hostname;
+        const nid = utils.networks[networkState as unknown as NetworksType].nid;
+        fetchAbi(network, nid);
+      } else {
+        setContractAbi([]);
+      }
     }
-  }, [contractAddressIsValid, contractAddress]);
+  }, [
+    contractAddressIsValid,
+    contractAddress,
+    networkState,
+    customNetworkState,
+  ]);
+
   return (
     <div className="w-full min-w-min max-w-screen-xl overflow-hidden rounded-lg bg-white shadow">
       <div className="px-4 py-5 sm:p-6">
