@@ -1,3 +1,10 @@
+import EspaniconSDKWeb from "@espanicon/espanicon-sdk";
+import type {
+  ContractAbiType,
+  EspaniconSdkType,
+  ErrorResponse,
+} from "../types";
+
 const networks = {
   mainnet: {
     nid: 1,
@@ -42,7 +49,10 @@ const contracts = {
     governance: "cx0000000000000000000000000000000000000000",
     governance1: "cx0000000000000000000000000000000000000001",
   },
-  custom: {},
+  custom: {
+    governance: "cx0000000000000000000000000000000000000000",
+    governance1: "cx0000000000000000000000000000000000000001",
+  },
 };
 
 const routes = {
@@ -50,11 +60,62 @@ const routes = {
   proposals: "/api/v1/governance/proposals",
 };
 
+function isScoreValid(scoreAddress: string) {
+  const regex = /([cC][xX][a-fA-F0-9]{40})$/;
+  return regex.test(scoreAddress);
+}
+
+function isValidIconAddress(address: string) {
+  const regex = /([hH][xX][a-fA-F0-9]{40})$/;
+  return regex.test(address);
+}
+
+async function fetchAbi(
+  contractAddress: string,
+  nodeUrl: string,
+  nid: number
+): Promise<ContractAbiType | null> {
+  const abi: ContractAbiType = [];
+  try {
+    // eslint-disable-next-line
+    const sdk = new EspaniconSDKWeb(
+      nodeUrl,
+      nid
+    ) as unknown as EspaniconSdkType;
+    const response = await sdk.getScoreApi(contractAddress);
+    if (Array.isArray(response)) {
+      console.log("response");
+      console.log(response);
+      return response;
+    } else {
+      const errorResponse = response as unknown as ErrorResponse;
+      if (errorResponse.error != null) {
+        abi.push({
+          name: "error",
+          error: {
+            code: errorResponse.error.code,
+            message: errorResponse.error.message,
+          },
+        });
+        throw new Error(response.error.message);
+      }
+    }
+  } catch (err) {
+    console.log("error fetching abi");
+    console.log(err);
+  }
+
+  return abi;
+}
+
 const utils = {
   networks,
   networkKeys,
   contracts,
   routes,
+  isScoreValid,
+  isValidIconAddress,
+  fetchAbi,
 };
 
 export default utils;

@@ -9,6 +9,7 @@
     "start": "next start"
   },
   "dependencies": {
+    "@espanicon/espanicon-sdk": "github:Espanicon/espanicon-sdk",
     "@headlessui/react": "^1.7.9",
     "@heroicons/react": "^2.0.14",
     "next": "13.1.6",

@@ -11,6 +11,10 @@ export type AbiMethod = {
   outputs?: Array<{ type: string }>;
   readonly?: string;
   type?: string;
+  error?: {
+    code: number;
+    message: string;
+  };
 };
 
 export type ContractAbiType = Array<AbiMethod>;
@@ -36,4 +40,17 @@ export type NavbarPropsType = {
 export type TextAreaResultPropsType = {
   label: string;
   text?: string;
+};
+
+export type ErrorResponse = {
+  jsonrpc: string;
+  id: number;
+  error: {
+    code: number;
+    message: string;
+  };
+};
+
+export type EspaniconSdkType = {
+  getScoreApi: (arg0: string) => Promise<ContractAbiType | ErrorResponse>;
 };

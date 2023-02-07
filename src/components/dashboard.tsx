@@ -1,29 +1,24 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import type { ChangeEvent } from "react";
 import Navbar from "./navbar";
 import ListOfMethods from "./listOfMethods";
 import TextAreaResult from "./textAreaResult";
-import type {
-  ContractAbiType,
-  MethodItemPropsType,
-  InputItemPropsType,
-  NavbarPropsType,
-  ListPropsType,
-  TextAreaResultPropsType,
-  NetworksType,
-} from "../types";
+import type { ContractAbiType, NetworksType } from "../types";
 
 import abi from "../utils/testAbi";
 import utils from "../utils/utils";
 
-const defaultContract = "cx0000000000000000000000000000000000000000";
 export default function Dashboard() {
   const [networkState, setNetworkState] = useState<NetworksType | string>(
     utils.networkKeys[0]!
   );
   const [customNetworkState, setCustomNetworkState] = useState<string>("");
-  const [contractAbi, setContractAbi] = useState<ContractAbiType>(abi);
-  const [readIsActive, setReadIsActive] = useState(false);
+  const [contractAbi, setContractAbi] = useState<ContractAbiType>([]);
+  const [readIsActive, setReadIsActive] = useState(true);
+  const [contractAddress, setContractAddress] = useState(
+    utils.contracts[networkState as NetworksType].governance
+  );
+  const [contractAddressIsValid, setContractAddressIsValid] = useState(true);
 
   function handleNetworkChange(evnt: ChangeEvent<HTMLSelectElement>) {
     setNetworkState(evnt.target.value);
@@ -33,6 +28,29 @@ export default function Dashboard() {
     setCustomNetworkState(evnt.target.value);
   }
 
+  function handleContractAddressChange(evnt: ChangeEvent<HTMLInputElement>) {
+    const isValid = utils.isScoreValid(evnt.target.value);
+    setContractAddressIsValid(isValid);
+    setContractAddress(evnt.target.value);
+  }
+
+  useEffect(() => {
+    async function fetchAbi() {
+      const abi = await utils.fetchAbi(
+        contractAddress,
+        utils.networks[networkState as unknown as NetworksType].hostname,
+        utils.networks[networkState as unknown as NetworksType].nid
+      );
+
+      setContractAbi(abi);
+    }
+
+    if (contractAddressIsValid) {
+      fetchAbi();
+    } else {
+      setContractAbi([]);
+    }
+  }, [contractAddressIsValid, contractAddress]);
   return (
     <div className="w-full min-w-min max-w-screen-xl overflow-hidden rounded-lg bg-white shadow">
       <div className="px-4 py-5 sm:p-6">
@@ -56,7 +74,6 @@ export default function Dashboard() {
             </select>
             {networkState === "custom" ? (
               <input
-                // readOnly={true}
                 type="text"
                 name="text"
                 id="text"
@@ -128,8 +145,11 @@ export default function Dashboard() {
               type="text"
               name="text"
               id="text"
-              className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-              placeholder={defaultContract}
+              className={`sm:text-smr block w-full rounded-md ${
+                contractAddressIsValid ? "border-green-300" : "border-red-300"
+              }  shadow-sm focus:border-indigo-500 focus:ring-indigo-500`}
+              value={contractAddress}
+              onChange={handleContractAddressChange}
             />
           </div>
         </div>
