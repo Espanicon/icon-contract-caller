@@ -3,6 +3,8 @@ import type {
   ContractAbiType,
   EspaniconSdkType,
   ErrorResponse,
+  ProtocolType,
+  UrlType,
 } from "../types";
 
 const networks = {
@@ -27,6 +29,9 @@ const networks = {
     hostname: "",
   },
 };
+
+const urlRegex =
+  /^((https|http):\/\/)?(([a-zA-Z0-9-]{1,}\.){1,}([a-zA-Z0-9]{1,63}))(:[0-9]{2,5})?(\/.*)?$/;
 
 const networkKeys = Object.keys(networks) as unknown as Array<
   keyof typeof networks
@@ -106,6 +111,32 @@ async function fetchAbi(
   return abi;
 }
 
+function isValidUrl(urlString: string) {
+  return urlRegex.test(urlString);
+}
+
+function makeUrlObject(rpcNode: string) {
+  const inputInLowercase = rpcNode.toLowerCase();
+  const parsedUrl: UrlType = {
+    protocol: "https",
+    path: "/",
+    hostname: null,
+    port: "443",
+  };
+
+  const regexResult = inputInLowercase.match(urlRegex);
+
+  if (regexResult != null) {
+    parsedUrl.protocol =
+      regexResult[2] == null ? "https" : (regexResult[2] as ProtocolType);
+    parsedUrl.path = regexResult[7] == null ? "/" : regexResult[7];
+    parsedUrl.hostname = regexResult[3] == null ? rpcNode : regexResult[3];
+    parsedUrl.port = regexResult[6] == null ? "" : regexResult[6].slice(1);
+  }
+
+  return parsedUrl;
+}
+
 const utils = {
   networks,
   networkKeys,
@@ -114,6 +145,8 @@ const utils = {
   isScoreValid,
   isValidIconAddress,
   fetchAbi,
+  isValidUrl,
+  makeUrlObject,
 };
 
 export default utils;

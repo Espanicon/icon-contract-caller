@@ -14,6 +14,7 @@ export default function Dashboard() {
   const [nodeUrl, setNodeUrl] = useState<string>(
     utils.networks[networkState as unknown as NetworksType].hostname
   );
+  const [nodeUrlIsValid, setNodeUrlIsValid] = useState(true);
   const [nodeNid, setNodeNid] = useState<string>(
     utils.networks[networkState as unknown as NetworksType].nid
   );
@@ -63,12 +64,18 @@ export default function Dashboard() {
       setContractAbi(abi);
     }
 
-    if (contractAddressIsValid) {
+    if (contractAddressIsValid && nodeUrlIsValid) {
       const network = nodeUrl;
       const nid = nodeNid;
       fetchAbi(network, nid);
     } else {
       setContractAbi([]);
+    }
+
+    if (utils.isValidUrl(nodeUrl)) {
+      setNodeUrlIsValid(true);
+    } else {
+      setNodeUrlIsValid(false);
     }
   }, [contractAddressIsValid, contractAddress, networkState, nodeUrl, nodeNid]);
 
@@ -99,7 +106,9 @@ export default function Dashboard() {
                   type="text"
                   name="text"
                   id="text"
-                  className="m-1 flex-auto grow rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                  className={`${
+                    nodeUrlIsValid ? "border-green-300" : "border-red-300"
+                  } m-1 flex-auto grow rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm`}
                   value={nodeUrl}
                   onChange={handleCustomNetworkChange}
                   placeholder="hostname"
@@ -121,7 +130,9 @@ export default function Dashboard() {
                   type="text"
                   name="text"
                   id="text"
-                  className="m-1 flex-auto grow rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                  className={`${
+                    nodeUrlIsValid ? "border-green-300" : "border-red-300"
+                  } m-1 flex-auto grow rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm`}
                   value={nodeUrl}
                 />
                 <input

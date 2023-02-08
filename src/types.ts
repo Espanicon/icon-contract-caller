@@ -1,6 +1,15 @@
 import type { Dispatch } from "react";
 import type utils from "./utils/utils";
 
+export type ProtocolType = "https" | "http";
+
+export type UrlType = {
+  protocol: ProtocolType;
+  hostname: string | null;
+  path: string | null;
+  port: string | null;
+};
+
 export type NetworksType = (typeof utils.networkKeys)[number];
 
 type IO = Array<{ name: string; type: string }>;
