@@ -7,23 +7,23 @@ import type {
 
 const networks = {
   mainnet: {
-    nid: 1,
+    nid: "1",
     hostname: "ctz.solidwallet.io",
   },
   lisbon: {
-    nid: 2,
+    nid: "2",
     hostname: "lisbon.net.solidwallet.io",
   },
   berlin: {
-    nid: 7,
+    nid: "7",
     hostname: "berlin.net.solidwallet.io",
   },
   sejong: {
-    nid: 83,
+    nid: "83",
     hostname: "sejong.net.solidwallet.io",
   },
   custom: {
-    nid: 3,
+    nid: "3",
     hostname: "",
   },
 };
@@ -73,7 +73,7 @@ function isValidIconAddress(address: string) {
 async function fetchAbi(
   contractAddress: string,
   nodeUrl: string,
-  nid: number
+  nid: string
 ): Promise<ContractAbiType> {
   const abi: ContractAbiType = [];
   try {

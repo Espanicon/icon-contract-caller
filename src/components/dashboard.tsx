@@ -11,7 +11,12 @@ export default function Dashboard() {
   const [networkState, setNetworkState] = useState<string>(
     utils.networkKeys[0]!
   );
-  const [customNetworkState, setCustomNetworkState] = useState<string>("");
+  const [nodeUrl, setNodeUrl] = useState<string>(
+    utils.networks[networkState as unknown as NetworksType].hostname
+  );
+  const [nodeNid, setNodeNid] = useState<string>(
+    utils.networks[networkState as unknown as NetworksType].nid
+  );
   const [contractAbi, setContractAbi] = useState<ContractAbiType>([]);
   const [readIsActive, setReadIsActive] = useState(true);
   const [contractAddress, setContractAddress] = useState(
@@ -21,10 +26,28 @@ export default function Dashboard() {
 
   function handleNetworkChange(evnt: ChangeEvent<HTMLSelectElement>) {
     setNetworkState(evnt.target.value);
+    setNodeUrl(
+      utils.networks[evnt.target.value as unknown as NetworksType].hostname
+    );
+    setNodeNid(
+      utils.networks[evnt.target.value as unknown as NetworksType].nid
+    );
   }
 
   function handleCustomNetworkChange(evnt: ChangeEvent<HTMLInputElement>) {
-    setCustomNetworkState(evnt.target.value);
+    setNodeUrl(evnt.target.value);
+  }
+
+  function handleCustomNetworkNidChange(evnt: ChangeEvent<HTMLInputElement>) {
+    const newValue = parseInt(evnt.target.value);
+
+    if (!Number.isNaN(newValue)) {
+      setNodeNid(newValue.toString());
+    }
+
+    if (evnt.target.value === "") {
+      setNodeNid("");
+    }
   }
 
   function handleContractAddressChange(evnt: ChangeEvent<HTMLInputElement>) {
@@ -34,36 +57,20 @@ export default function Dashboard() {
   }
 
   useEffect(() => {
-    async function fetchAbi(network: string, nid: number) {
+    async function fetchAbi(network: string, nid: string) {
       const abi = await utils.fetchAbi(contractAddress, network, nid);
 
       setContractAbi(abi);
     }
 
-    if (networkState === "custom") {
-      if (contractAddressIsValid) {
-        const network = customNetworkState;
-        const nid = utils.networks["custom"].nid;
-        fetchAbi(network, nid);
-      } else {
-        setContractAbi([]);
-      }
+    if (contractAddressIsValid) {
+      const network = nodeUrl;
+      const nid = nodeNid;
+      fetchAbi(network, nid);
     } else {
-      if (contractAddressIsValid) {
-        const network =
-          utils.networks[networkState as unknown as NetworksType].hostname;
-        const nid = utils.networks[networkState as unknown as NetworksType].nid;
-        fetchAbi(network, nid);
-      } else {
-        setContractAbi([]);
-      }
+      setContractAbi([]);
     }
-  }, [
-    contractAddressIsValid,
-    contractAddress,
-    networkState,
-    customNetworkState,
-  ]);
+  }, [contractAddressIsValid, contractAddress, networkState, nodeUrl, nodeNid]);
 
   return (
     <div className="w-full min-w-min max-w-screen-xl overflow-hidden rounded-lg bg-white shadow">
@@ -73,7 +80,7 @@ export default function Dashboard() {
             htmlFor="text"
             className="block text-sm font-medium text-gray-700"
           >
-            Select Network:
+            Select Network (hostname and nid):
           </label>
           <div className="flex flex-wrap content-center">
             <select
@@ -87,26 +94,45 @@ export default function Dashboard() {
               })}
             </select>
             {networkState === "custom" ? (
-              <input
-                type="text"
-                name="text"
-                id="text"
-                className="my-1 block rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                value={customNetworkState}
-                onChange={handleCustomNetworkChange}
-              />
+              <div className="flex flex-1 flex-row content-center">
+                <input
+                  type="text"
+                  name="text"
+                  id="text"
+                  className="m-1 flex-auto grow rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                  value={nodeUrl}
+                  onChange={handleCustomNetworkChange}
+                  placeholder="hostname"
+                />
+                <input
+                  type="text"
+                  name="text"
+                  id="text"
+                  className="my-1 w-min rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                  value={nodeNid}
+                  onChange={handleCustomNetworkNidChange}
+                  placeholder="nid"
+                />
+              </div>
             ) : (
-              <input
-                readOnly={true}
-                type="text"
-                name="text"
-                id="text"
-                className="my-1 block rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                value={
-                  utils.networks[networkState as unknown as NetworksType]
-                    .hostname
-                }
-              />
+              <div className="flex flex-1 flex-row content-center">
+                <input
+                  readOnly={true}
+                  type="text"
+                  name="text"
+                  id="text"
+                  className="m-1 flex-auto grow rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                  value={nodeUrl}
+                />
+                <input
+                  readOnly={true}
+                  type="text"
+                  name="text"
+                  id="text"
+                  className="my-1 w-min rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                  value={nodeNid}
+                />
+              </div>
             )}
           </div>
         </div>
