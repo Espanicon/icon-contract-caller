@@ -5,6 +5,7 @@ import type {
   ErrorResponse,
   ProtocolType,
   UrlType,
+  RpcObjType,
 } from "../types";
 
 const networks = {

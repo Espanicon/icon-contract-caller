@@ -1,6 +1,7 @@
 import type { NextPage } from "next";
 import Head from "next/head";
 import Dashboard from "../components/dashboard";
+import GlobalProvider from "../context/globalContext";
 
 const Home: NextPage = () => {
   return (
@@ -15,7 +16,9 @@ const Home: NextPage = () => {
           <h1 className="text-center text-5xl font-extrabold tracking-tight text-white sm:text-[5rem]">
             ICON Contract Caller
           </h1>
-          <Dashboard />
+          <GlobalProvider>
+            <Dashboard />
+          </GlobalProvider>
         </div>
       </main>
     </>

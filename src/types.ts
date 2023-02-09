@@ -1,7 +1,63 @@
 import type { Dispatch } from "react";
 import type utils from "./utils/utils";
 
+export type InitStateType = {
+  loggedWallet: string;
+  networkState: string;
+  nodeUrl: string;
+  nodeUrlIsValid: boolean;
+  nodeNid: string;
+  contractAbi: ContractAbiType;
+  readIsActive: boolean;
+  contractAddress: string;
+  contractAddressIsValid: boolean;
+};
+
+export type GlobalContextType = {
+  loggedWallet: InitStateType["loggedWallet"];
+  setLoggedWallet?: Dispatch<InitStateType["loggedWallet"]>;
+  networkState: InitStateType["networkState"];
+  setNetworkState?: Dispatch<InitStateType["networkState"]>;
+  nodeUrl: InitStateType["nodeUrl"];
+  setNodeUrl?: Dispatch<InitStateType["nodeUrl"]>;
+  nodeUrlIsValid: InitStateType["nodeUrlIsValid"];
+  setNodeUrlIsValid?: Dispatch<InitStateType["nodeUrlIsValid"]>;
+  nodeNid: InitStateType["nodeNid"];
+  setNodeNid?: Dispatch<InitStateType["nodeNid"]>;
+  contractAbi: InitStateType["contractAbi"];
+  setContractAbi?: Dispatch<InitStateType["contractAbi"]>;
+  readIsActive: InitStateType["readIsActive"];
+  setReadIsActive?: Dispatch<InitStateType["readIsActive"]>;
+  contractAddress: InitStateType["contractAddress"];
+  setContractAddress?: Dispatch<InitStateType["contractAddress"]>;
+  contractAddressIsValid: InitStateType["contractAddressIsValid"];
+  setContractAddressIsValid?: Dispatch<InitStateType["contractAddressIsValid"]>;
+};
+
 export type ProtocolType = "https" | "http";
+
+export type RpcObjType = {
+  jsonrpc: string;
+  method: string;
+  id: number;
+  params: {
+    to: string;
+    from?: string;
+    stepLimit?: string;
+    nid?: string;
+    nonce?: string;
+    version?: string;
+    timestamp?: string;
+    dataType: string;
+    value?: string;
+    data: {
+      method: string;
+      params?: {
+        [key: string]: string;
+      };
+    };
+  };
+};
 
 export type UrlType = {
   protocol: ProtocolType;
