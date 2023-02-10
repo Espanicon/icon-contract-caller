@@ -1,16 +1,65 @@
 import { useState } from "react";
 import TextAreaResult from "./textAreaResult";
 import InputItem from "./inputItem";
-import type { MethodItemPropsType } from "../types";
+import type { MethodItemPropsType, AbiMethod } from "../types";
+import { useGlobalContext } from "../context/globalContext";
+
+type StateType = {
+  name: string;
+  type: string;
+  value: string;
+};
+
+function getInitState(arrayOfInputs: AbiMethod["inputs"]): Array<StateType> {
+  if (arrayOfInputs == null) {
+    return [];
+  } else {
+    if (arrayOfInputs.length === 0) {
+      return [];
+    } else {
+      const result = arrayOfInputs.map((each) => {
+        return {
+          ...each,
+          value: "",
+        };
+      });
+
+      return result;
+    }
+  }
+}
 
 export default function MethodItem({ method }: MethodItemPropsType) {
   const [isOpen, setIsOpen] = useState(false);
+  const [inputStates, setInputStates] = useState<Array<StateType>>(
+    getInitState(method.inputs)
+  );
+  const {
+    loggedWallet,
+    nodeUrl,
+    nodeUrlIsValid,
+    nodeNid,
+    contractAddress,
+    contractAddressIsValid,
+  } = useGlobalContext();
 
   function toggleOpen() {
     setIsOpen((state) => {
       return !state;
     });
   }
+
+  function handleInputChange(data: string, index: number) {
+    setInputStates((state) => {
+      const latestState = [...state];
+      const inputState = latestState[index];
+      if (inputState != null) {
+        inputState["value"] = data;
+      }
+      return latestState;
+    });
+  }
+
   return (
     <div className="flex flex-col divide-y divide-solid rounded border border-gray-300">
       <div
@@ -34,16 +83,20 @@ export default function MethodItem({ method }: MethodItemPropsType) {
         </svg>
       </div>
       <div className={isOpen ? "p-2" : "hidden"}>
-        {method.inputs!.length > 0 ? (
+        {inputStates.length > 0 ? (
           <>
-            {method.inputs!.map((input, index) => {
+            {inputStates.map((input, index) => {
               return (
                 <div
                   key={
                     input.name != null ? `${input.name}-${index}` : `${index}`
                   }
                 >
-                  <InputItem input={input} />
+                  <InputItem
+                    input={input}
+                    index={index}
+                    handler={handleInputChange}
+                  />
                 </div>
               );
             })}

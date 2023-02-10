@@ -94,7 +94,9 @@ export type MethodItemPropsType = {
 };
 
 export type InputItemPropsType = {
-  input: { name: string; type: string };
+  input: { name: string; type: string; value: string };
+  index: number;
+  handler: (data: string, index: number) => void;
 };
 
 export type NavbarPropsType = {
