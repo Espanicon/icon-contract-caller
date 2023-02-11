@@ -110,8 +110,13 @@ export default function Dashboard() {
   useEffect(() => {
     async function fetchAbi(network: string, nid: string) {
       if (setContractAbi != null) {
-        const abi = await utils.fetchAbi(contractAddress, network, nid);
-        setContractAbi(abi);
+        if (networkState === "custom") {
+          const abi = await utils.fetchAbiCustom(contractAddress, network);
+          setContractAbi(abi);
+        } else {
+          const abi = await utils.fetchAbi(contractAddress, network, nid);
+          setContractAbi(abi);
+        }
       }
     }
 

@@ -118,6 +118,39 @@ export type ErrorResponse = {
   };
 };
 
+export type SuccessResponse = {
+  jsonrpc: string;
+  id: number;
+  result: {
+    [key: string]: string;
+  };
+};
+
+export type CustomResponse = {
+  jsonrpc: string;
+  id: number;
+  result?: {
+    [key: string]: string;
+  };
+  error?: {
+    code: number;
+    message: string;
+  };
+};
+type ReducedJsonRpc = {
+  jsonrpc: string;
+  id: string;
+  method: string;
+};
+
 export type EspaniconSdkType = {
   getScoreApi: (arg0: string) => Promise<ContractAbiType | ErrorResponse>;
+  queryMethod: (
+    arg0: string,
+    arg1: string,
+    arg2: string,
+    arg3: boolean,
+    arg4: string
+  ) => Promise<CustomResponse>;
+  makeJSONRPCRequestObj: (arg0: string) => ReducedJsonRpc;
 };

@@ -5,7 +5,6 @@ import type {
   ErrorResponse,
   ProtocolType,
   UrlType,
-  RpcObjType,
 } from "../types";
 
 const networks = {
@@ -74,6 +73,66 @@ function isScoreValid(scoreAddress: string) {
 function isValidIconAddress(address: string) {
   const regex = /([hH][xX][a-fA-F0-9]{40})$/;
   return regex.test(address);
+}
+
+async function fetchAbiCustom(
+  contractAddress: string,
+  fullUrl: string
+): Promise<ContractAbiType> {
+  const abi: ContractAbiType = [];
+  try {
+    const urlObj = makeUrlObject(fullUrl);
+    console.log(urlObj);
+    if (urlObj.hostname != null) {
+      // eslint-disable-next-line
+      const sdk = new EspaniconSDKWeb(
+        `${urlObj.hostname}/api/v3`,
+        1
+      ) as unknown as EspaniconSdkType;
+
+      // make RPC request object
+      const RPCObj = JSON.stringify({
+        ...sdk.makeJSONRPCRequestObj("icx_getScoreApi"),
+        params: {
+          address: contractAddress,
+        },
+      });
+
+      // make request
+      const path = urlObj.path === "/" ? "/api/v3" : urlObj.path;
+      const request = await sdk.queryMethod(
+        // eslint-disable-next-line
+        path!,
+        RPCObj,
+        urlObj.hostname,
+        urlObj.protocol === "http" ? false : true,
+        // eslint-disable-next-line
+        urlObj.port!
+      );
+
+      if (request == null) {
+        return [];
+      } else {
+        if (request.error == null) {
+          return request.result as unknown as ContractAbiType;
+        } else {
+          const errorResponse = request as unknown as ErrorResponse;
+          abi.push({
+            name: "error",
+            error: {
+              code: errorResponse.error.code,
+              message: errorResponse.error.message,
+            },
+          });
+          throw new Error(request.error.message);
+        }
+      }
+    }
+  } catch (err) {
+    console.log("error fetching abi");
+    console.log(err);
+  }
+  return abi;
 }
 
 async function fetchAbi(
@@ -148,6 +207,7 @@ const utils = {
   fetchAbi,
   isValidUrl,
   makeUrlObject,
+  fetchAbiCustom,
 };
 
 export default utils;
