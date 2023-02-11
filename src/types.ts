@@ -36,6 +36,10 @@ export type GlobalContextType = {
 
 export type ProtocolType = "https" | "http";
 
+export type ParamsObjType = {
+  [key: string]: string;
+};
+
 export type RpcObjType = {
   jsonrpc: string;
   method: string;
@@ -150,7 +154,7 @@ export type EspaniconSdkType = {
     arg1: string,
     arg2: string,
     arg3: boolean,
-    arg4: string
+    arg4: string | boolean
   ) => Promise<CustomResponse>;
   makeJSONRPCRequestObj: (arg0: string) => ReducedJsonRpc;
 };

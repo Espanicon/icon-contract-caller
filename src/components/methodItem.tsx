@@ -60,6 +60,14 @@ export default function MethodItem({ method }: MethodItemPropsType) {
     });
   }
 
+  function handleOnClick() {
+    // TODO: build here
+    console.log(nodeUrl);
+    console.log(contractAddress);
+    console.log(method.name);
+    console.log(inputStates);
+  }
+
   return (
     <div className="flex flex-col divide-y divide-solid rounded border border-gray-300">
       <div
@@ -103,6 +111,7 @@ export default function MethodItem({ method }: MethodItemPropsType) {
             <button
               type="button"
               className="relative mb-2 flex inline-flex w-1/4 min-w-min content-center items-center justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-800 hover:bg-gray-50 focus:z-10 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 active:translate-y-px"
+              onClick={handleOnClick}
             >
               Query
             </button>
