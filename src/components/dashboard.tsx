@@ -159,6 +159,8 @@ export default function Dashboard() {
         case "CANCEL":
           break;
         case "RESPONSE_JSON-RPC":
+          console.log("payload");
+          console.log(payload);
           break;
         case "CANCEL_JSON-RPC":
           break;

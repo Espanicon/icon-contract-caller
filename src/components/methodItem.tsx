@@ -12,6 +12,8 @@ import utils from "../utils/utils";
 import { useGlobalContext } from "../context/globalContext";
 
 function dispatchTxEvent(query: RpcObjType) {
+  console.log("dispatched query");
+  console.log(query);
   window.dispatchEvent(
     new CustomEvent("ICONEX_RELAY_REQUEST", {
       detail: {
@@ -94,8 +96,47 @@ export default function MethodItem({ method }: MethodItemPropsType) {
 
   function handleOnClick() {
     // TODO: build here
+    console.log(method);
     const params = utils.getParamsFromArray(inputStates);
-    makeCustomRequest(contractAddress, method.name, nodeUrl, params);
+    if (method.readonly === "0x1") {
+      // if "query" button is pressed on a readonly method.
+      makeCustomRequest(contractAddress, method.name, nodeUrl, params);
+    } else {
+      // if "query" button is pressed on a nonreadonly method.
+      const queryObj = utils.makeJsonRpcObj(
+        contractAddress,
+        method.name,
+        params,
+        "icx_sendTransaction",
+        loggedWallet
+      );
+      dispatchTxEvent(queryObj);
+      // if (method.payable === "0x1") {
+      //   // if the method is payable the RPC call must be done
+      //   // with "icx_sendTransaction"
+      //   const queryObj = utils.makeJsonRpcObj(
+      //     contractAddress,
+      //     method.name,
+      //     params,
+      //     "icx_sendTransaction",
+      //     loggedWallet,
+      //     null,
+      //     0
+      //   );
+      //   dispatchTxEvent(queryObj);
+      // } else {
+      //   // if the method is payable the RPC call must be done
+      //   // with "icx_call"
+      //   const queryObj = utils.makeJsonRpcObj(
+      //     contractAddress,
+      //     method.name,
+      //     params,
+      //     "icx_sendTransaction",
+      //     loggedWallet
+      //   );
+      //   dispatchTxEvent(queryObj);
+      // }
+    }
   }
 
   useEffect(() => {
@@ -110,7 +151,7 @@ export default function MethodItem({ method }: MethodItemPropsType) {
       setTextAreaContent(stringified);
     }
 
-    if (method.inputs!.length === 0) {
+    if (method.inputs!.length === 0 && method.readonly === "0x1") {
       fetchResult();
     }
   }, []);

@@ -79,6 +79,7 @@ export type AbiMethod = {
   name: string;
   outputs?: Array<{ type: string }>;
   readonly?: string;
+  payable?: string;
   type?: string;
   error?: {
     code: number;

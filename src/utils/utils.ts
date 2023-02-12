@@ -201,7 +201,7 @@ function makeUrlObject(rpcNode: string) {
 }
 
 function getParamsFromArray(arr: Array<InputParamType>) {
-  const result: { [key: string]: string } = {};
+  const result: ParamsObjType = {};
 
   if (arr.length > 0) {
     for (const each of arr) {
@@ -340,6 +340,7 @@ const utils = {
   fetchAbiCustom,
   makeRpcCustomRequest,
   getParamsFromArray,
+  makeJsonRpcObj,
 };
 
 export default utils;
