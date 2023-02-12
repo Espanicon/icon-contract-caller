@@ -8,16 +8,16 @@ import { useGlobalContext } from "../context/globalContext";
 
 import utils from "../utils/utils";
 
-function dispatchTxEvent(query: RpcObjType) {
-  window.dispatchEvent(
-    new CustomEvent("ICONEX_RELAY_REQUEST", {
-      detail: {
-        type: "REQUEST_JSON-RPC",
-        payload: query,
-      },
-    })
-  );
-}
+// function dispatchTxEvent(query: RpcObjType) {
+//   window.dispatchEvent(
+//     new CustomEvent("ICONEX_RELAY_REQUEST", {
+//       detail: {
+//         type: "REQUEST_JSON-RPC",
+//         payload: query,
+//       },
+//     })
+//   );
+// }
 
 function dispatchEventForLogin() {
   window.dispatchEvent(

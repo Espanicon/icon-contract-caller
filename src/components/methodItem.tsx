@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import TextAreaResult from "./textAreaResult";
 import InputItem from "./inputItem";
-import type { MethodItemPropsType, AbiMethod } from "../types";
+import type { MethodItemPropsType, AbiMethod, RpcObjType } from "../types";
+import utils from "../utils/utils";
 import { useGlobalContext } from "../context/globalContext";
 
 type StateType = {
@@ -9,6 +10,17 @@ type StateType = {
   type: string;
   value: string;
 };
+
+function dispatchTxEvent(query: RpcObjType) {
+  window.dispatchEvent(
+    new CustomEvent("ICONEX_RELAY_REQUEST", {
+      detail: {
+        type: "REQUEST_JSON-RPC",
+        payload: query,
+      },
+    })
+  );
+}
 
 function getInitState(arrayOfInputs: AbiMethod["inputs"]): Array<StateType> {
   if (arrayOfInputs == null) {
@@ -34,6 +46,7 @@ export default function MethodItem({ method }: MethodItemPropsType) {
   const [inputStates, setInputStates] = useState<Array<StateType>>(
     getInitState(method.inputs)
   );
+  const [textAreaContent, setTextAreaContent] = useState<string>("");
   const {
     loggedWallet,
     nodeUrl,
@@ -68,6 +81,22 @@ export default function MethodItem({ method }: MethodItemPropsType) {
     console.log(inputStates);
   }
 
+  useEffect(() => {
+    async function fetchResult() {
+      const query = await utils.makeRpcCustomRequest(
+        contractAddress,
+        method.name,
+        nodeUrl
+      );
+
+      const stringified = JSON.stringify(query);
+      setTextAreaContent(stringified);
+    }
+
+    if (method.inputs!.length === 0) {
+      fetchResult();
+    }
+  }, []);
   return (
     <div className="flex flex-col divide-y divide-solid rounded border border-gray-300">
       <div
@@ -115,11 +144,11 @@ export default function MethodItem({ method }: MethodItemPropsType) {
             >
               Query
             </button>
-            <TextAreaResult label="Query Result:" />
+            <TextAreaResult label="Query Result:" text={textAreaContent} />
           </>
         ) : (
           <>
-            <TextAreaResult label="Query Result:" />
+            <TextAreaResult label="Query Result:" text={textAreaContent} />
           </>
         )}
       </div>
