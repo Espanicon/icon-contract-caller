@@ -1,15 +1,15 @@
 import { useState, useEffect } from "react";
 import TextAreaResult from "./textAreaResult";
 import InputItem from "./inputItem";
-import type { MethodItemPropsType, AbiMethod, RpcObjType } from "../types";
+import type {
+  MethodItemPropsType,
+  AbiMethod,
+  RpcObjType,
+  InputParamType,
+  ParamsObjType,
+} from "../types";
 import utils from "../utils/utils";
 import { useGlobalContext } from "../context/globalContext";
-
-type StateType = {
-  name: string;
-  type: string;
-  value: string;
-};
 
 function dispatchTxEvent(query: RpcObjType) {
   window.dispatchEvent(
@@ -22,7 +22,9 @@ function dispatchTxEvent(query: RpcObjType) {
   );
 }
 
-function getInitState(arrayOfInputs: AbiMethod["inputs"]): Array<StateType> {
+function getInitState(
+  arrayOfInputs: AbiMethod["inputs"]
+): Array<InputParamType> {
   if (arrayOfInputs == null) {
     return [];
   } else {
@@ -43,7 +45,7 @@ function getInitState(arrayOfInputs: AbiMethod["inputs"]): Array<StateType> {
 
 export default function MethodItem({ method }: MethodItemPropsType) {
   const [isOpen, setIsOpen] = useState(false);
-  const [inputStates, setInputStates] = useState<Array<StateType>>(
+  const [inputStates, setInputStates] = useState<Array<InputParamType>>(
     getInitState(method.inputs)
   );
   const [textAreaContent, setTextAreaContent] = useState<string>("");
@@ -73,12 +75,27 @@ export default function MethodItem({ method }: MethodItemPropsType) {
     });
   }
 
+  async function makeCustomRequest(
+    contract: string,
+    method: string,
+    url: string,
+    params: ParamsObjType = {}
+  ) {
+    const query = await utils.makeRpcCustomRequest(
+      contract,
+      method,
+      url,
+      params
+    );
+
+    const stringified = JSON.stringify(query);
+    setTextAreaContent(stringified);
+  }
+
   function handleOnClick() {
     // TODO: build here
-    console.log(nodeUrl);
-    console.log(contractAddress);
-    console.log(method.name);
-    console.log(inputStates);
+    const params = utils.getParamsFromArray(inputStates);
+    makeCustomRequest(contractAddress, method.name, nodeUrl, params);
   }
 
   useEffect(() => {

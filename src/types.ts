@@ -158,3 +158,9 @@ export type EspaniconSdkType = {
   ) => Promise<CustomResponse>;
   makeJSONRPCRequestObj: (arg0: string) => ReducedJsonRpc;
 };
+
+export type InputParamType = {
+  name: string;
+  value: string;
+  type: string;
+};

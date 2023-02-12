@@ -7,6 +7,7 @@ import type {
   UrlType,
   ParamsObjType,
   RpcObjType,
+  InputParamType,
 } from "../types";
 
 const networks = {
@@ -199,6 +200,18 @@ function makeUrlObject(rpcNode: string) {
   return parsedUrl;
 }
 
+function getParamsFromArray(arr: Array<InputParamType>) {
+  const result: { [key: string]: string } = {};
+
+  if (arr.length > 0) {
+    for (const each of arr) {
+      result[each.name] = each.value;
+    }
+  }
+
+  return result;
+}
+
 async function makeRpcCustomRequest(
   contract: string,
   method: string,
@@ -326,6 +339,7 @@ const utils = {
   makeUrlObject,
   fetchAbiCustom,
   makeRpcCustomRequest,
+  getParamsFromArray,
 };
 
 export default utils;
