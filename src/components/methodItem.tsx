@@ -7,6 +7,8 @@ import type {
   RpcObjType,
   InputParamType,
   ParamsObjType,
+  InitStateType,
+  CustomResponse,
 } from "../types";
 import utils from "../utils/utils";
 import { useGlobalContext } from "../context/globalContext";
@@ -50,7 +52,7 @@ export default function MethodItem({ method }: MethodItemPropsType) {
   const [inputStates, setInputStates] = useState<Array<InputParamType>>(
     getInitState(method.inputs)
   );
-  const [textAreaContent, setTextAreaContent] = useState<string>("");
+  const [customTextArea, setCustomTextArea] = useState<string>("");
   const {
     loggedWallet,
     nodeUrl,
@@ -58,6 +60,8 @@ export default function MethodItem({ method }: MethodItemPropsType) {
     nodeNid,
     contractAddress,
     contractAddressIsValid,
+    textAreaContent,
+    setTextAreaContent,
   } = useGlobalContext();
 
   function toggleOpen() {
@@ -90,8 +94,27 @@ export default function MethodItem({ method }: MethodItemPropsType) {
       params
     );
 
-    const stringified = JSON.stringify(query);
-    setTextAreaContent(stringified);
+    if (setTextAreaContent != null) {
+      const stringified = JSON.stringify(query) as unknown as string;
+      setTextAreaContent((state: CustomResponse) => {
+        const newState = { ...state };
+        // eslint-disable-next-line
+        if (newState[contractAddress] != null) {
+          // eslint-disable-next-line
+          newState[contractAddress] = {
+            [method]: stringified,
+          };
+        } else {
+          // eslint-disable-next-line
+          newState[contractAddress] = {
+            ...newState[contractAddress],
+            [method]: stringified,
+          };
+        }
+      });
+    } else {
+      console.log("error setting state for response on textarea");
+    }
   }
 
   function handleOnClick() {
@@ -108,7 +131,8 @@ export default function MethodItem({ method }: MethodItemPropsType) {
         method.name,
         params,
         "icx_sendTransaction",
-        loggedWallet
+        loggedWallet,
+        parseInt(nodeNid)
       );
       dispatchTxEvent(queryObj);
       // if (method.payable === "0x1") {
@@ -148,13 +172,58 @@ export default function MethodItem({ method }: MethodItemPropsType) {
       );
 
       const stringified = JSON.stringify(query);
-      setTextAreaContent(stringified);
+      if (setTextAreaContent != null) {
+        setTextAreaContent((state) => {
+          const newState = { ...state };
+          if (newState[contractAddress] == null) {
+            newState[contractAddress] = {
+              [method.name]: stringified,
+            };
+          } else {
+            newState[contractAddress] = {
+              ...newState[contractAddress],
+              [method.name]: stringified,
+            };
+          }
+          return newState;
+        });
+      } else {
+        console.log("error setting state for response on textarea");
+      }
+      // setTextAreaContent(stringified);
     }
 
     if (method.inputs!.length === 0 && method.readonly === "0x1") {
       fetchResult();
     }
   }, []);
+
+  useEffect(() => {
+    console.log("textAreaContent");
+    console.log(textAreaContent);
+    const keys = Object.keys(textAreaContent);
+    const methodNames =
+      keys.length > 0
+        ? keys.includes(contractAddress)
+          ? Object.keys(textAreaContent[contractAddress]!)
+          : []
+        : [];
+    const methodValue = methodNames.includes(method.name)
+      ? textAreaContent[contractAddress]![method.name]
+      : "";
+    if (methodValue === "") {
+      setCustomTextArea(methodValue);
+    } else {
+      const stringified = JSON.stringify(methodValue);
+      setCustomTextArea(stringified);
+    }
+  }, [textAreaContent, contractAddress, method]);
+
+  useEffect(() => {
+    console.log("customTextArea");
+    console.log(customTextArea);
+  }, [customTextArea]);
+
   return (
     <div className="flex flex-col divide-y divide-solid rounded border border-gray-300">
       <div
@@ -202,11 +271,22 @@ export default function MethodItem({ method }: MethodItemPropsType) {
             >
               Query
             </button>
-            <TextAreaResult label="Query Result:" text={textAreaContent} />
+            <TextAreaResult label="Query Result:" text={customTextArea} />
+          </>
+        ) : method.readonly === "0x1" ? (
+          <>
+            <TextAreaResult label="Query Result:" text={customTextArea} />
           </>
         ) : (
           <>
-            <TextAreaResult label="Query Result:" text={textAreaContent} />
+            <button
+              type="button"
+              className="relative mb-2 flex inline-flex w-1/4 min-w-min content-center items-center justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-800 hover:bg-gray-50 focus:z-10 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 active:translate-y-px"
+              onClick={handleOnClick}
+            >
+              Query
+            </button>
+            <TextAreaResult label="Query Result:" text={customTextArea} />
           </>
         )}
       </div>

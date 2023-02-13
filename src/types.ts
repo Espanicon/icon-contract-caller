@@ -11,6 +11,7 @@ export type InitStateType = {
   readIsActive: boolean;
   contractAddress: string;
   contractAddressIsValid: boolean;
+  textAreaContent: CustomResponse;
 };
 
 export type GlobalContextType = {
@@ -32,6 +33,10 @@ export type GlobalContextType = {
   setContractAddress?: Dispatch<InitStateType["contractAddress"]>;
   contractAddressIsValid: InitStateType["contractAddressIsValid"];
   setContractAddressIsValid?: Dispatch<InitStateType["contractAddressIsValid"]>;
+  textAreaContent: InitStateType["textAreaContent"];
+  // setTextAreaContent?: Dispatch<CustomResponse>;
+  // eslint-disable-next-line
+  setTextAreaContent?: any;
 };
 
 export type ProtocolType = "https" | "http";
@@ -43,7 +48,7 @@ export type ParamsObjType = {
 export type RpcObjType = {
   jsonrpc: string;
   method: string;
-  id: number;
+  id: string;
   params: {
     to: string;
     from?: string;
@@ -133,7 +138,7 @@ export type SuccessResponse = {
 
 export type CustomResponse = {
   jsonrpc: string;
-  id: number;
+  id: string;
   result?: {
     [key: string]: string;
   };

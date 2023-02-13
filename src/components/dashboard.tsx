@@ -8,17 +8,6 @@ import { useGlobalContext } from "../context/globalContext";
 
 import utils from "../utils/utils";
 
-// function dispatchTxEvent(query: RpcObjType) {
-//   window.dispatchEvent(
-//     new CustomEvent("ICONEX_RELAY_REQUEST", {
-//       detail: {
-//         type: "REQUEST_JSON-RPC",
-//         payload: query,
-//       },
-//     })
-//   );
-// }
-
 function dispatchEventForLogin() {
   window.dispatchEvent(
     new CustomEvent("ICONEX_RELAY_REQUEST", {
@@ -49,6 +38,7 @@ export default function Dashboard() {
     setContractAddress,
     contractAddressIsValid,
     setContractAddressIsValid,
+    setTextAreaContent,
   } = useGlobalContext();
 
   function handleLogin(wallet: string) {
@@ -159,8 +149,28 @@ export default function Dashboard() {
         case "CANCEL":
           break;
         case "RESPONSE_JSON-RPC":
+          const stringified = JSON.stringify(payload);
           console.log("payload");
           console.log(payload);
+          if (setTextAreaContent != null) {
+            setTextAreaContent((state) => {
+              const newState = { ...state };
+              if (newState[contractAddress] == null) {
+                newState[contractAddress] = {
+                  [payload.id]: stringified,
+                };
+              } else {
+                newState[contractAddress] = {
+                  ...newState[contractAddress],
+                  [payload.id]: stringified,
+                };
+              }
+
+              return newState;
+            });
+          } else {
+            console.log("error setting state for response on textarea");
+          }
           break;
         case "CANCEL_JSON-RPC":
           break;

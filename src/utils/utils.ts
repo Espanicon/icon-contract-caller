@@ -291,7 +291,7 @@ function makeJsonRpcObj(
   const rpcObj: RpcObjType = {
     jsonrpc: "2.0",
     method: rpcMethod,
-    id: Math.ceil(Math.random() * 1000),
+    id: method,
     params: {
       to: to,
       dataType: "call",

@@ -20,6 +20,7 @@ const initStates: InitStateType = {
   contractAddress:
     utils.contracts[utils.networkKeys[0]! as NetworksType].governance,
   contractAddressIsValid: true,
+  textAreaContent: {},
 };
 
 const GlobalContext = createContext<GlobalContextType>({
@@ -32,6 +33,7 @@ const GlobalContext = createContext<GlobalContextType>({
   readIsActive: initStates.readIsActive,
   contractAddress: initStates.contractAddress,
   contractAddressIsValid: initStates.contractAddressIsValid,
+  textAreaContent: initStates.textAreaContent,
 });
 
 export function useGlobalContext() {
@@ -61,6 +63,10 @@ export default function GlobalProvider({ children }: { children: ReactNode }) {
     initStates.contractAddressIsValid
   );
 
+  const [textAreaContent, setTextAreaContent] = useState(
+    initStates.textAreaContent
+  );
+
   //
   //
   return (
@@ -84,6 +90,8 @@ export default function GlobalProvider({ children }: { children: ReactNode }) {
         setContractAddress: setContractAddress,
         contractAddressIsValid: contractAddressIsValid,
         setContractAddressIsValid: setContractAddressIsValid,
+        textAreaContent: textAreaContent,
+        setTextAreaContent: setTextAreaContent,
       }}
     >
       {children}
