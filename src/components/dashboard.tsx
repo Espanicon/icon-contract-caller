@@ -3,7 +3,12 @@ import type { ChangeEvent } from "react";
 import Navbar from "./navbar";
 import ListOfMethods from "./listOfMethods";
 import TextAreaResult from "./textAreaResult";
-import type { NetworksType, RpcObjType } from "../types";
+import type {
+  NetworksType,
+  CustomResponse,
+  PayloadType,
+  TextAreaContentDict,
+} from "../types";
 import { useGlobalContext } from "../context/globalContext";
 
 import utils from "../utils/utils";
@@ -22,6 +27,8 @@ export default function Dashboard() {
   const {
     loggedWallet,
     setLoggedWallet,
+    walletIsValid,
+    setWalletIsValid,
     networkState,
     setNetworkState,
     nodeUrl,
@@ -39,6 +46,7 @@ export default function Dashboard() {
     contractAddressIsValid,
     setContractAddressIsValid,
     setTextAreaContent,
+    methodRef,
   } = useGlobalContext();
 
   function handleLogin(wallet: string) {
@@ -47,11 +55,11 @@ export default function Dashboard() {
     }
   }
 
-  function handleLogout() {
-    if (setLoggedWallet != null) {
-      setLoggedWallet("");
-    }
-  }
+  // function handleLogout() {
+  //   if (setLoggedWallet != null) {
+  //     setLoggedWallet("");
+  //   }
+  // }
 
   function handleNetworkChange(evnt: ChangeEvent<HTMLSelectElement>) {
     if (setNetworkState != null && setNodeUrl != null && setNodeNid != null) {
@@ -113,7 +121,7 @@ export default function Dashboard() {
     if (contractAddressIsValid && nodeUrlIsValid) {
       const network = nodeUrl;
       const nid = nodeNid;
-      fetchAbi(network, nid);
+      void fetchAbi(network, nid);
     } else {
       if (setContractAbi != null) {
         setContractAbi([]);
@@ -136,33 +144,60 @@ export default function Dashboard() {
     nodeUrl,
     nodeNid,
     nodeUrlIsValid,
+    setContractAbi,
+    setNodeUrlIsValid,
   ]);
 
   useEffect(() => {
-    function walletResponseEventHandler(event: any) {
+    function walletResponseEventHandler(event: {
+      detail: {
+        type: string;
+        payload: PayloadType;
+      };
+    }) {
       const { type, payload } = event.detail;
+      console.log("payload");
+      console.log(payload);
+      console.log(type);
 
+      let customPayload: null | CustomResponse = null;
+      if (payload.code != null) {
+        customPayload = {
+          jsonrpc: "2.0",
+          id: methodRef.current,
+          error: {
+            ...payload,
+          },
+        };
+      } else {
+        customPayload = {
+          ...payload,
+        };
+      }
       switch (type) {
         case "RESPONSE_ADDRESS":
-          handleLogin(payload as string);
+          handleLogin(payload as unknown as string);
+          // eslint-disable-next-line
+          setWalletIsValid!(true);
           break;
         case "CANCEL":
           break;
         case "RESPONSE_JSON-RPC":
-          const stringified = JSON.stringify(payload);
-          console.log("payload");
-          console.log(payload);
+          const stringified = JSON.stringify(customPayload);
           if (setTextAreaContent != null) {
-            setTextAreaContent((state) => {
-              const newState = { ...state };
+            // eslint-disable-next-line
+            setTextAreaContent((state: TextAreaContentDict) => {
+              const newState: TextAreaContentDict = { ...state };
               if (newState[contractAddress] == null) {
                 newState[contractAddress] = {
-                  [payload.id]: stringified,
+                  // eslint-disable-next-line
+                  [customPayload!.id]: stringified,
                 };
               } else {
                 newState[contractAddress] = {
                   ...newState[contractAddress],
-                  [payload.id]: stringified,
+                  // eslint-disable-next-line
+                  [customPayload!.id]: stringified,
                 };
               }
 
@@ -178,17 +213,20 @@ export default function Dashboard() {
       }
     }
 
+    // eslint-disable-next-line
     window.addEventListener(
       "ICONEX_RELAY_RESPONSE",
       walletResponseEventHandler
     );
 
     return function cleanUp() {
+      // eslint-disable-next-line
       window.removeEventListener(
         "ICONEX_RELAY_RESPONSE",
         walletResponseEventHandler
       );
     };
+    // eslint-disable-next-line
   }, []);
 
   return (
@@ -271,7 +309,9 @@ export default function Dashboard() {
               readOnly={true}
               type="text"
               name="text"
-              className="block flex-1 rounded-md border-gray-300 shadow-sm sm:text-sm"
+              className={`${
+                walletIsValid ? "border-green-300" : "border-red-300"
+              } m-1 flex-auto grow rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm`}
               placeholder="hx0000..000"
               value={loggedWallet}
             />

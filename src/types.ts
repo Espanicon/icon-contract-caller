@@ -1,8 +1,19 @@
-import type { Dispatch } from "react";
+import type { Dispatch, MutableRefObject } from "react";
 import type utils from "./utils/utils";
+
+export interface StringDict {
+  [key: string]: string;
+}
+
+export interface TextAreaContentDict {
+  [key: string]: {
+    [key: string]: string;
+  };
+}
 
 export type InitStateType = {
   loggedWallet: string;
+  walletIsValid: boolean;
   networkState: string;
   nodeUrl: string;
   nodeUrlIsValid: boolean;
@@ -11,12 +22,15 @@ export type InitStateType = {
   readIsActive: boolean;
   contractAddress: string;
   contractAddressIsValid: boolean;
-  textAreaContent: CustomResponse;
+  textAreaContent: TextAreaContentDict;
+  methodRef: MutableRefObject<string>;
 };
 
 export type GlobalContextType = {
   loggedWallet: InitStateType["loggedWallet"];
   setLoggedWallet?: Dispatch<InitStateType["loggedWallet"]>;
+  walletIsValid: boolean;
+  setWalletIsValid?: Dispatch<boolean>;
   networkState: InitStateType["networkState"];
   setNetworkState?: Dispatch<InitStateType["networkState"]>;
   nodeUrl: InitStateType["nodeUrl"];
@@ -36,7 +50,8 @@ export type GlobalContextType = {
   textAreaContent: InitStateType["textAreaContent"];
   // setTextAreaContent?: Dispatch<CustomResponse>;
   // eslint-disable-next-line
-  setTextAreaContent?: any;
+  setTextAreaContent?: Dispatch<InitStateType["textAreaContent"]>;
+  methodRef: MutableRefObject<string>;
 };
 
 export type ProtocolType = "https" | "http";
@@ -136,15 +151,26 @@ export type SuccessResponse = {
   };
 };
 
-export type CustomResponse = {
-  jsonrpc: string;
+export type PayloadType = {
+  code?: number;
+  mesage?: string;
   id: string;
   result?: {
     [key: string]: string;
   };
   error?: {
-    code: number;
-    message: string;
+    [key: string]: string;
+  };
+};
+export type CustomResponse = {
+  jsonrpc?: string;
+  id?: string;
+  result?: {
+    [key: string]: string;
+  };
+  error?: {
+    code?: number;
+    message?: string;
   };
 };
 type ReducedJsonRpc = {

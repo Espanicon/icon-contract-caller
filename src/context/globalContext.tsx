@@ -1,7 +1,7 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useState, useRef } from "react";
 import type { ReactNode } from "react";
 import utils from "../utils/utils";
-import {
+import type {
   NetworksType,
   ContractAbiType,
   InitStateType,
@@ -10,21 +10,28 @@ import {
 
 const initStates: InitStateType = {
   loggedWallet: "",
+  walletIsValid: false,
+  // eslint-disable-next-line
   networkState: utils.networkKeys[0]!,
   nodeUrl:
+    // eslint-disable-next-line
     utils.networks[utils.networkKeys[0]! as unknown as NetworksType].hostname,
   nodeUrlIsValid: true,
+  // eslint-disable-next-line
   nodeNid: utils.networks[utils.networkKeys[0]! as unknown as NetworksType].nid,
   contractAbi: [],
   readIsActive: true,
   contractAddress:
+    // eslint-disable-next-line
     utils.contracts[utils.networkKeys[0]! as NetworksType].governance,
   contractAddressIsValid: true,
   textAreaContent: {},
+  methodRef: { current: "" },
 };
 
 const GlobalContext = createContext<GlobalContextType>({
   loggedWallet: initStates.loggedWallet,
+  walletIsValid: initStates.walletIsValid,
   networkState: initStates.networkState,
   nodeUrl: initStates.nodeUrl,
   nodeUrlIsValid: initStates.nodeUrlIsValid,
@@ -34,6 +41,7 @@ const GlobalContext = createContext<GlobalContextType>({
   contractAddress: initStates.contractAddress,
   contractAddressIsValid: initStates.contractAddressIsValid,
   textAreaContent: initStates.textAreaContent,
+  methodRef: initStates.methodRef,
 });
 
 export function useGlobalContext() {
@@ -43,6 +51,9 @@ export function useGlobalContext() {
 export default function GlobalProvider({ children }: { children: ReactNode }) {
   const [loggedWallet, setLoggedWallet] = useState<string>(
     initStates.loggedWallet
+  );
+  const [walletIsValid, setWalletIsValid] = useState<boolean>(
+    initStates.walletIsValid
   );
   const [networkState, setNetworkState] = useState<string>(
     initStates.networkState
@@ -67,6 +78,8 @@ export default function GlobalProvider({ children }: { children: ReactNode }) {
     initStates.textAreaContent
   );
 
+  const methodRef = useRef("");
+
   //
   //
   return (
@@ -74,6 +87,8 @@ export default function GlobalProvider({ children }: { children: ReactNode }) {
       value={{
         loggedWallet: loggedWallet,
         setLoggedWallet: setLoggedWallet,
+        walletIsValid: walletIsValid,
+        setWalletIsValid: setWalletIsValid,
         networkState: networkState,
         setNetworkState: setNetworkState,
         nodeUrl: nodeUrl,
@@ -92,6 +107,7 @@ export default function GlobalProvider({ children }: { children: ReactNode }) {
         setContractAddressIsValid: setContractAddressIsValid,
         textAreaContent: textAreaContent,
         setTextAreaContent: setTextAreaContent,
+        methodRef: methodRef,
       }}
     >
       {children}

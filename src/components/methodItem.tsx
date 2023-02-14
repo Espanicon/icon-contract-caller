@@ -7,8 +7,7 @@ import type {
   RpcObjType,
   InputParamType,
   ParamsObjType,
-  InitStateType,
-  CustomResponse,
+  TextAreaContentDict,
 } from "../types";
 import utils from "../utils/utils";
 import { useGlobalContext } from "../context/globalContext";
@@ -55,13 +54,13 @@ export default function MethodItem({ method }: MethodItemPropsType) {
   const [customTextArea, setCustomTextArea] = useState<string>("");
   const {
     loggedWallet,
+    walletIsValid,
     nodeUrl,
-    nodeUrlIsValid,
     nodeNid,
     contractAddress,
-    contractAddressIsValid,
     textAreaContent,
     setTextAreaContent,
+    methodRef,
   } = useGlobalContext();
 
   function toggleOpen() {
@@ -96,21 +95,20 @@ export default function MethodItem({ method }: MethodItemPropsType) {
 
     if (setTextAreaContent != null) {
       const stringified = JSON.stringify(query) as unknown as string;
-      setTextAreaContent((state: CustomResponse) => {
-        const newState = { ...state };
-        // eslint-disable-next-line
-        if (newState[contractAddress] != null) {
-          // eslint-disable-next-line
+      // eslint-disable-next-line
+      setTextAreaContent((state: TextAreaContentDict) => {
+        const newState: TextAreaContentDict = { ...state };
+        if (newState[contractAddress] == null) {
           newState[contractAddress] = {
             [method]: stringified,
           };
         } else {
-          // eslint-disable-next-line
           newState[contractAddress] = {
             ...newState[contractAddress],
             [method]: stringified,
           };
         }
+        return newState;
       });
     } else {
       console.log("error setting state for response on textarea");
@@ -119,47 +117,26 @@ export default function MethodItem({ method }: MethodItemPropsType) {
 
   function handleOnClick() {
     // TODO: build here
-    console.log(method);
-    const params = utils.getParamsFromArray(inputStates);
-    if (method.readonly === "0x1") {
-      // if "query" button is pressed on a readonly method.
-      makeCustomRequest(contractAddress, method.name, nodeUrl, params);
+    if (walletIsValid) {
+      const params = utils.getParamsFromArray(inputStates);
+      if (method.readonly === "0x1") {
+        // if "query" button is pressed on a readonly method.
+        void makeCustomRequest(contractAddress, method.name, nodeUrl, params);
+      } else {
+        // if "query" button is pressed on a nonreadonly method.
+        const queryObj = utils.makeJsonRpcObj(
+          contractAddress,
+          method.name,
+          params,
+          "icx_sendTransaction",
+          loggedWallet,
+          parseInt(nodeNid)
+        );
+        methodRef.current = method.name;
+        dispatchTxEvent(queryObj);
+      }
     } else {
-      // if "query" button is pressed on a nonreadonly method.
-      const queryObj = utils.makeJsonRpcObj(
-        contractAddress,
-        method.name,
-        params,
-        "icx_sendTransaction",
-        loggedWallet,
-        parseInt(nodeNid)
-      );
-      dispatchTxEvent(queryObj);
-      // if (method.payable === "0x1") {
-      //   // if the method is payable the RPC call must be done
-      //   // with "icx_sendTransaction"
-      //   const queryObj = utils.makeJsonRpcObj(
-      //     contractAddress,
-      //     method.name,
-      //     params,
-      //     "icx_sendTransaction",
-      //     loggedWallet,
-      //     null,
-      //     0
-      //   );
-      //   dispatchTxEvent(queryObj);
-      // } else {
-      //   // if the method is payable the RPC call must be done
-      //   // with "icx_call"
-      //   const queryObj = utils.makeJsonRpcObj(
-      //     contractAddress,
-      //     method.name,
-      //     params,
-      //     "icx_sendTransaction",
-      //     loggedWallet
-      //   );
-      //   dispatchTxEvent(queryObj);
-      // }
+      alert("No wallet has been selected");
     }
   }
 
@@ -173,8 +150,9 @@ export default function MethodItem({ method }: MethodItemPropsType) {
 
       const stringified = JSON.stringify(query);
       if (setTextAreaContent != null) {
-        setTextAreaContent((state) => {
-          const newState = { ...state };
+        // eslint-disable-next-line
+        setTextAreaContent((state: TextAreaContentDict) => {
+          const newState: TextAreaContentDict = { ...state };
           if (newState[contractAddress] == null) {
             newState[contractAddress] = {
               [method.name]: stringified,
@@ -190,12 +168,13 @@ export default function MethodItem({ method }: MethodItemPropsType) {
       } else {
         console.log("error setting state for response on textarea");
       }
-      // setTextAreaContent(stringified);
     }
 
+    // eslint-disable-next-line
     if (method.inputs!.length === 0 && method.readonly === "0x1") {
-      fetchResult();
+      void fetchResult();
     }
+    // eslint-disable-next-line
   }, []);
 
   useEffect(() => {
@@ -205,11 +184,13 @@ export default function MethodItem({ method }: MethodItemPropsType) {
     const methodNames =
       keys.length > 0
         ? keys.includes(contractAddress)
-          ? Object.keys(textAreaContent[contractAddress]!)
+          ? // eslint-disable-next-line
+            Object.keys(textAreaContent[contractAddress]!)
           : []
         : [];
     const methodValue = methodNames.includes(method.name)
-      ? textAreaContent[contractAddress]![method.name]
+      ? // eslint-disable-next-line
+        textAreaContent[contractAddress]![method.name]
       : "";
     if (methodValue === "") {
       setCustomTextArea(methodValue);
