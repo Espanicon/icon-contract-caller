@@ -178,8 +178,6 @@ export default function MethodItem({ method }: MethodItemPropsType) {
   }, []);
 
   useEffect(() => {
-    console.log("textAreaContent");
-    console.log(textAreaContent);
     const keys = Object.keys(textAreaContent);
     const methodNames =
       keys.length > 0
@@ -199,11 +197,6 @@ export default function MethodItem({ method }: MethodItemPropsType) {
       setCustomTextArea(stringified);
     }
   }, [textAreaContent, contractAddress, method]);
-
-  useEffect(() => {
-    console.log("customTextArea");
-    console.log(customTextArea);
-  }, [customTextArea]);
 
   return (
     <div className="flex flex-col divide-y divide-solid rounded border border-gray-300">
