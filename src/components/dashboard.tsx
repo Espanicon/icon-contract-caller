@@ -227,7 +227,7 @@ export default function Dashboard() {
       );
     };
     // eslint-disable-next-line
-  }, []);
+  }, [contractAddress]);
 
   return (
     <div className="w-full min-w-min max-w-screen-xl overflow-hidden rounded-lg bg-white shadow">
